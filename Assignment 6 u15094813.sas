@@ -3,6 +3,7 @@ options ls=72 nodate pageno=1 ;
 
 
 *********** ******* Question 1: Logic - Monte Carlo Integration ******* ***********;
+title 'Question 1';
 proc iml;
 
 start function_x(x);
@@ -63,12 +64,60 @@ print 'Area Under Curve: ' (q13);
 
 
 
-************** ********** Question 2: Bootstrap Regression ********** **************;
+************** ********** Question 2: (from scratch) Bootstrap Regression ********** **************;
+title 'Additional Question 2';
 data cdata;
 set '/folders/myfolders/sasuser.v94/EKT 720/Assignment 6/cdata.sas7bdat';
 run;
-proc print data=cdata (obs=10);
+
+proc iml;
+use cdata;
+read all into xy;
+n = nrow(xy);
+x = J(n,1,1) || xy[,1];
+y = xy[,2];
+
+title 'Additional Question 2: Pairs';
+* Question 2a: Pairs;
+start bootstrap_data_resampling(x, y, repeat_n);
+	xy = x||y;
+	
+	do i=1 to repeat_n by 1;
+			
+		sub_matrix = J(nrow(x), 3, 0);
+		do j=1 to nrow(x);
+			random_index = rand('integer', 1, nrow(x));
+			sub_matrix[j,1] = xy[random_index,1];
+			sub_matrix[j,2] = xy[random_index,2];
+			sub_matrix[j,3] = xy[random_index,3];
+		end;
+		* fit model on sample;
+		xs = sub_matrix[,1:2];
+		ys = sub_matrix[,3];
+		b = inv(xs`*xs)*xs`*ys;
+		
+		betas = betas // b`;
+	end;
+	return betas;
+finish bootstrap_data_resampling;
+
+beta_values = bootstrap_data_resampling(x,y,1000);
+
+print 'Average Betas' (beta_values[:,]);
+cn = {'beta0' 'beta1'};
+
+create beta_values from beta_values[colname=cn];
+	append from beta_values;
+	
+	
+proc sgplot data=beta_values;
+	histogram beta0 / binwidth=10;
+run;	
+
+proc sgplot data=beta_values;
+	histogram beta1 / binwidth=0.01;
 run;
+
 
 
 proc iml;
@@ -78,22 +127,8 @@ n = nrow(xy);
 x = J(n,1,1) || xy[,1];
 y = xy[,2];
 
-* Question 2a: Pairs;
-xy_index = xy || do(1, nrow(x), 1)`;
-print (sample(xy_index[,3], 100, )`);
 
-start bootstrap_data_resampling(xy_index, repeat_n);
-	n = nrow(xy_index);
-	
-	do i=1 to repeat_n by 1;
-		slice = sample(xy_index[,3], n, 'Replace')`;
-	end;
-finish bootstrap_data_resampling;
-
-
-
-
-
+title 'Additional Question 2: Residuals';
 * Question 2b: Residuals;
 start bootstrap_residuals_regression(x, y, repeat_n);
 	n = nrow(x);
@@ -117,7 +152,7 @@ finish bootstrap_residuals_regression;
 
 
 B = bootstrap_residuals_regression(x,y,1000);
-print 'Beta Averages' (B[:,]`);
+print 'Beta Averages' (B[:,]);
 
 cn = {'Beta0' 'beta1'};
 create bootstrap_residuals from B[colname=cn];
