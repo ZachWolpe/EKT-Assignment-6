@@ -70,9 +70,6 @@ run;
 proc print data=cdata (obs=10);
 run;
 
-*proc sgplot data=cdata;
-*	scatter x=x y=y;
-*run;
 
 proc iml;
 use cdata;
@@ -104,7 +101,7 @@ finish bootstrap_residuals_regression;
 
 
 
-B = bootstrap_residuals_regression(x,y,10);
+B = bootstrap_residuals_regression(x,y,1000);
 print 'Beta Averages' (B[:,]`);
 print B;
 
