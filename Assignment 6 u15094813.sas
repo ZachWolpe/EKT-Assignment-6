@@ -47,46 +47,54 @@ start MC_integration(function_x, n, x_lower_limit, x_upper_limit);
 			results[i,3] = 1; 
 			end;
 	end;
-	print results;
-	return results;
+	
+	total_area = (approx_height_u - approx_height_l) * 
+		(round(x_upper_limit) - round(x_lower_limit));
+ 	area_under_curve = mean(results[,3])*total_area;
+	return area_under_curve;
 finish MC_integration;
 
 
-*********** Question 1.1 ***********;
-q11 = MC_integration(function_x, 10, 3, 8);
+n = 10000;
+*********** *********** Question 1.1 *********** ***********;
+q11 = MC_integration(function_x, n, 3, 8);
+print 'Area Under Curve: ' (q11);
 
-cm = {'x' 'y' 'above'};
-create q11 from q11[colname=cm];
-	append from q11;
-run;
+*********** *********** Question 1.1 *********** ***********;
+q12 = MC_integration(function_x, n, 1, 10);
+print 'Area Under Curve: ' (q12);
 
-print q11;
-
-
-
-
-
-x_1 = do(3, 8, 0.01)`;
-y_1 = function_x(x_1);
-
-* define sampling space;
-buffer = 2.5
-upper = max(y_1) + buffer;
-lower = min(y_1) - buffer;
-left 
-
-print (max(y_1));
+*********** *********** Question 1.1 *********** ***********;
+q13 = MC_integration(function_x, n, 0, 20);
+print 'Area Under Curve: ' (q13);
 
 
-xy_1 = x_1 || y_1;
-cn = {'x' 'y'};
-create xy_1 from xy_1[colname=cn];
-	append from xy_1;
-run;
 
-proc sgplot data=xy_1;
-	scatter y=y x=x;
-run;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
