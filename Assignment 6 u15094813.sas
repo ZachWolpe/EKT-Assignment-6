@@ -70,9 +70,6 @@ run;
 proc print data=cdata (obs=10);
 run;
 
-*proc sgplot data=cdata;
-*	scatter x=x y=y;
-*run;
 
 proc iml;
 use cdata;
@@ -81,7 +78,23 @@ n = nrow(xy);
 x = J(n,1,1) || xy[,1];
 y = xy[,2];
 
+* Question 2a: Pairs;
+xy_index = xy || do(1, nrow(x), 1)`;
+print (sample(xy_index[,3], 100, )`);
 
+start bootstrap_data_resampling(xy_index, repeat_n);
+	n = nrow(xy_index);
+	
+	do i=1 to repeat_n by 1;
+		slice = sample(xy_index[,3], n, 'Replace')`;
+	end;
+finish bootstrap_data_resampling;
+
+
+
+
+
+* Question 2b: Residuals;
 start bootstrap_residuals_regression(x, y, repeat_n);
 	n = nrow(x);
 	b = inv(x`*x)*x`*y; 
@@ -96,24 +109,26 @@ start bootstrap_residuals_regression(x, y, repeat_n);
 		b_star = inv(x`*x)*x`*y_star; 
 		coefficients = coefficients // b_star`;
 	end;
-
 	
 	return coefficients;
-	
 finish bootstrap_residuals_regression;
 
 
 
-B = bootstrap_residuals_regression(x,y,10);
+
+B = bootstrap_residuals_regression(x,y,1000);
 print 'Beta Averages' (B[:,]`);
-print B;
 
 cn = {'Beta0' 'beta1'};
 create bootstrap_residuals from B[colname=cn];
 	append from B;	
 
 proc sgplot data=bootstrap_residuals;
-	histogram Beta0 / binwidth=0.1;
+	histogram beta0 / binwidth=10;
+run;	
+
+proc sgplot data=bootstrap_residuals;
+	histogram beta1 / binwidth=0.01;
 run;
 
 
