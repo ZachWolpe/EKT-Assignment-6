@@ -1,7 +1,5 @@
 options ls=72 nodate pageno=1 ; 
-
-************** ***********  ASSIGNMENT 6  *********** **************;
-test add;
+************** ***************  ASSIGNMENT 6  *************** **************;
 
 data cdata;
 set '/folders/myfolders/sasuser.v94/EKT 720/Assignment 6/cdata.sas7bdat';
@@ -14,6 +12,8 @@ proc sgplot data=cdata;
 run;
 
 
+************** Question 1: Logic - Monte Carlo Integration **************;
+
 proc iml;
 start function_x(x);
 	do i=1 to nrow(x);
@@ -24,25 +24,28 @@ start function_x(x);
 	return y;	
 finish function_x;
 
-start sampler(x, y);
-	
-finish sampler;
+start MC_integration(x,y,n);
+	*Monte Carlo Integration Sampler;
+	do i=1 to n;
+		
+	end;
+finish MC_integration;
 
 * Question 1.1;
-x_1 = do(3, 8, 0.1)`;
-y_1 = function_x(x);
+x_1 = do(3, 8, 0.01)`;
+y_1 = function_x(x_1);
 
 
 
 
 
-xy = x || y;
+xy_1 = x_1 || y_1;
 cn = {'x' 'y'};
-create xy from xy[colname=cn];
-	append from xy;
+create xy_1 from xy_1[colname=cn];
+	append from xy_1;
 run;
 
-proc sgplot data=xy;
+proc sgplot data=xy_1;
 	scatter y=y x=x;
 run;
 
