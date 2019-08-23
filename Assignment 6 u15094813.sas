@@ -1,18 +1,8 @@
 options ls=72 nodate pageno=1 ; 
-************** ***************  ASSIGNMENT 6  *************** **************;
-
-data cdata;
-set '/folders/myfolders/sasuser.v94/EKT 720/Assignment 6/cdata.sas7bdat';
-run;
-proc print data=cdata (obs=10);
-run;
-
-proc sgplot data=cdata;
-	scatter x=x y=y;
-run;
+* - - - - - - - - - - - - - - - - - ASSIGNMENT 6 - - - - - - - - - - - - - - - - - - - - - ;    
 
 
-************** Question 1: Logic - Monte Carlo Integration **************;
+************** ******* Question 1: Logic - Monte Carlo Integration ******* **************;
 proc iml;
 
 start function_x(x);
@@ -56,15 +46,15 @@ finish MC_integration;
 
 
 n = 10000;
-*********** *********** Question 1.3 *********** ***********;
+* Question 1.3;
 q11 = MC_integration(function_x, n, 3, 8);
 print 'Area Under Curve: ' (q11);
 
-*********** *********** Question 1.2 *********** ***********;
+* Question 1.2; 
 q12 = MC_integration(function_x, n, 1, 10);
 print 'Area Under Curve: ' (q12);
 
-*********** *********** Question 1.3 *********** ***********;
+* Question 1.3;
 q13 = MC_integration(function_x, n, 0, 20);
 print 'Area Under Curve: ' (q13);
 
@@ -73,12 +63,16 @@ print 'Area Under Curve: ' (q13);
 
 
 
+************** ********** Question 2: Bootstrap Regression ********** **************;
+data cdata;
+set '/folders/myfolders/sasuser.v94/EKT 720/Assignment 6/cdata.sas7bdat';
+run;
+proc print data=cdata (obs=10);
+run;
 
-
-
-
-
-
+proc sgplot data=cdata;
+	scatter x=x y=y;
+run;
 
 
 
