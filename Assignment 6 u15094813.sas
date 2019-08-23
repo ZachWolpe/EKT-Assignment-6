@@ -56,15 +56,15 @@ finish MC_integration;
 
 
 n = 10000;
-*********** *********** Question 1.1 *********** ***********;
+*********** *********** Question 1.3 *********** ***********;
 q11 = MC_integration(function_x, n, 3, 8);
 print 'Area Under Curve: ' (q11);
 
-*********** *********** Question 1.1 *********** ***********;
+*********** *********** Question 1.2 *********** ***********;
 q12 = MC_integration(function_x, n, 1, 10);
 print 'Area Under Curve: ' (q12);
 
-*********** *********** Question 1.1 *********** ***********;
+*********** *********** Question 1.3 *********** ***********;
 q13 = MC_integration(function_x, n, 0, 20);
 print 'Area Under Curve: ' (q13);
 
