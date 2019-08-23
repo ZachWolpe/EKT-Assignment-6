@@ -1,7 +1,7 @@
 options ls=72 nodate pageno=1 ; 
 
 ************** ***********  ASSIGNMENT 6  *********** **************;
-
+test add;
 
 data cdata;
 set '/folders/myfolders/sasuser.v94/EKT 720/Assignment 6/cdata.sas7bdat';
@@ -15,7 +15,6 @@ run;
 
 
 proc iml;
-* create the data;
 start function_x(x);
 	do i=1 to nrow(x);
 		y = y // 
@@ -46,3 +45,6 @@ run;
 proc sgplot data=xy;
 	scatter y=y x=x;
 run;
+
+
+
