@@ -64,7 +64,7 @@ print 'Area Under Curve: ' (q13);
 
 
 
-************** ********** Question 2: (from scratch) Bootstrap Regression ********** **************;
+************** ********** Question 2: Bootstrap Regression ********** **************;
 title 'Additional Question 2';
 data cdata;
 set '/folders/myfolders/sasuser.v94/EKT 720/Assignment 6/cdata.sas7bdat';
@@ -109,6 +109,8 @@ cn = {'beta0' 'beta1'};
 create beta_values from beta_values[colname=cn];
 	append from beta_values;
 	
+	
+
 	
 proc sgplot data=beta_values;
 	histogram beta0 / binwidth=10;
