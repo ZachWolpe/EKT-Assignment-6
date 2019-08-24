@@ -78,11 +78,9 @@ n = nrow(xy);
 x = J(n,1,1) || xy[,1];
 y = xy[,2];
 
-bb = inv(x`*x)*x`*y;
-
 
 title 'Additional Question 2: Pairs';
-* Question 2a: Pairs;
+*** *** *** *** *** Question 2a: Pairs *** *** *** *** ***;
 start bootstrap_data_resampling(x, y, repeat_n);
 	xy = x||y;
 	n = nrow(x);
@@ -116,7 +114,7 @@ results = bootstrap_data_resampling(x,y,1000);
 
 
 
-print 'Results: ' (results[:,]);
+print 'Averages: ' (results[:,]);
 cn = {'beta0' 'beta1' 'R2'};
 
 create results from results[colname=cn];
@@ -136,16 +134,30 @@ proc sgplot data=results;
 run;
 
 
+proc sql;
+	create table r2_data as
+	select r2,
+		(mean(r2)) as mean_r2,
+		(CALCULATED mean_r2 + 1.96*std(r2)) as upper,
+		(CALCULATED mean_r2 - 1.96*std(r2)) as lower
+	from results;
+quit;
+
+
+proc iml;
+use r2_data;
+read all into r;
+title 'R2 Confidence Interval';
+print 'R2 95% Confidence Interval: ' (r[1,4]) (r[1,3]);
+quit;
+
 proc sgplot data=results;
 	histogram r2 /binwidth=0.001 ;
 	title 'R-Squared Distribution';
 run;
 
-proc print data=results;
 
-
-
-
+*** *** *** *** *** Question 2b: Residuals *** *** *** *** ***;
 proc iml;
 use cdata;
 read all into xy;
@@ -155,7 +167,6 @@ y = xy[,2];
 
 
 title 'Additional Question 2: Residuals';
-* Question 2b: Residuals;
 start bootstrap_residuals_regression(x, y, repeat_n);
 	n = nrow(x);
 	b = inv(x`*x)*x`*y; 
@@ -169,29 +180,57 @@ start bootstrap_residuals_regression(x, y, repeat_n);
 		* bootstrap OLS;
 		b_star = inv(x`*x)*x`*y_star; 
 		coefficients = coefficients // b_star`;
+		
+		* R Squared;
+		r2 = r2 // ((b_star`*x`*y_star - n*(mean(y_star)**2)) / 
+						(y_star`*y_star - n*(mean(y_star)**2)));
+
 	end;
 	
-	return coefficients;
+	res = coefficients || r2;
+	return res;
 finish bootstrap_residuals_regression;
 
 
-
-
 B = bootstrap_residuals_regression(x,y,1000);
-print 'Beta Averages' (B[:,]);
+print 'Averages' (B[:,]);
 
-cn = {'Beta0' 'beta1'};
+cn = {'Beta0' 'beta1' 'R2'};
 create bootstrap_residuals from B[colname=cn];
 	append from B;	
 
 proc sgplot data=bootstrap_residuals;
 	histogram beta0 / binwidth=10;
+	title 'Beta0 Sampling Distribution';
 run;	
 
 proc sgplot data=bootstrap_residuals;
 	histogram beta1 / binwidth=0.01;
+	title 'Beta1 Sampling Distribution';
 run;
 
+
+proc sql;
+	create table r2_data2 as
+	select r2
+		(mean(r2)) as mean_r2,
+		(CALCULATED mean_r2 - 1.96*std(r2)) as lower,
+		(CALCULATED mean_r2 + 1.96*std(r2)) as upper
+	from bootstrap_residuals;
+quit;
+
+
+proc iml;
+use r2_data2;
+read all into r;
+title 'R2 Confidence Interval';
+print 'R2 95% Confidence Interval: ' (r[1,3]) (r[1,4]);
+quit;
+
+proc sgplot data=r2_data2;
+	histogram r2 /binwidth=0.001 ;
+	title 'R-Squared Sampling Distribution';
+run;
 
 
 
