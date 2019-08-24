@@ -70,6 +70,7 @@ data cdata;
 set '/folders/myfolders/sasuser.v94/EKT 720/Assignment 6/cdata.sas7bdat';
 run;
 
+
 proc iml;
 use cdata;
 read all into xy;
@@ -77,15 +78,19 @@ n = nrow(xy);
 x = J(n,1,1) || xy[,1];
 y = xy[,2];
 
+bb = inv(x`*x)*x`*y;
+
+
 title 'Additional Question 2: Pairs';
 * Question 2a: Pairs;
 start bootstrap_data_resampling(x, y, repeat_n);
 	xy = x||y;
+	n = nrow(x);
 	
 	do i=1 to repeat_n by 1;
 			
 		sub_matrix = J(nrow(x), 3, 0);
-		do j=1 to nrow(x);
+		do j=1 to n;
 			random_index = rand('integer', 1, nrow(x));
 			sub_matrix[j,1] = xy[random_index,1];
 			sub_matrix[j,2] = xy[random_index,2];
@@ -97,28 +102,47 @@ start bootstrap_data_resampling(x, y, repeat_n);
 		b = inv(xs`*xs)*xs`*ys;
 		
 		betas = betas // b`;
+		
+		* R Squared;
+		r2 = r2 // ((b`*xs`*ys - n*(mean(ys)**2)) / (ys`*ys - n*(mean(ys)**2)));
+	
 	end;
-	return betas;
+	res = betas || r2;
+	return res;
 finish bootstrap_data_resampling;
 
-beta_values = bootstrap_data_resampling(x,y,1000);
+	
+results = bootstrap_data_resampling(x,y,1000);
 
-print 'Average Betas' (beta_values[:,]);
-cn = {'beta0' 'beta1'};
 
-create beta_values from beta_values[colname=cn];
-	append from beta_values;
+
+print 'Results: ' (results[:,]);
+cn = {'beta0' 'beta1' 'R2'};
+
+create results from results[colname=cn];
+	append from results;
 	
 	
 
 	
-proc sgplot data=beta_values;
+proc sgplot data=results;
 	histogram beta0 / binwidth=10;
+	title 'Beta 0 Sampling Distribution';
 run;	
 
-proc sgplot data=beta_values;
+proc sgplot data=results;
 	histogram beta1 / binwidth=0.01;
+	title 'Beta 1 Sampling Distribution';
 run;
+
+
+proc sgplot data=results;
+	histogram r2 /binwidth=0.001 ;
+	title 'R-Squared Distribution';
+run;
+
+proc print data=results;
+
 
 
 
