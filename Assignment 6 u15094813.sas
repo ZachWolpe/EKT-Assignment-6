@@ -1,8 +1,7 @@
 options ls=72 nodate pageno=1 ; 
-* - - - - - - - - - - - - - - - - - - - - - ASSIGNMENT 6 - - - - - - - - - - - - - - - - - - - - - ;    
+* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ASSIGNMENT 6 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;    
 
-
-*********** ******* Question 1: Logic - Monte Carlo Integration ******* ***********;
+************** ******************** Question 1: Logic - Monte Carlo Integration ******************** **************;
 title 'Question 1';
 proc iml;
 
@@ -64,7 +63,7 @@ print 'Area Under Curve: ' (q13);
 
 
 
-************** ********** Question 2: Bootstrap Regression ********** **************;
+************** ******************** Question 2: Bootstrap Regression ******************** **************;
 title 'Additional Question 2';
 data cdata;
 set '/folders/myfolders/sasuser.v94/EKT 720/Assignment 6/cdata.sas7bdat';
@@ -212,12 +211,13 @@ run;
 
 proc sql;
 	create table r2_data2 as
-	select r2
+	select r2,
 		(mean(r2)) as mean_r2,
 		(CALCULATED mean_r2 - 1.96*std(r2)) as lower,
 		(CALCULATED mean_r2 + 1.96*std(r2)) as upper
 	from bootstrap_residuals;
 quit;
+
 
 
 proc iml;
@@ -231,6 +231,9 @@ proc sgplot data=r2_data2;
 	histogram r2 /binwidth=0.001 ;
 	title 'R-Squared Sampling Distribution';
 run;
+
+
+************** ******************** Question 3: Bootstrap Regression ******************** **************;
 
 
 
