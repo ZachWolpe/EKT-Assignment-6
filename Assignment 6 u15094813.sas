@@ -234,10 +234,74 @@ run;
 
 
 ************** ******************** Question 3: Model Building ******************** **************;
+libname lib '/folders/myfolders/sasuser.v94/EKT 720/Assignment 6/';
+title 'Question 3: Model Specification';
+
+proc print data=lib.cdata (obs=3);
+run;
+
+proc sgplot data=lib.cdata;
+	scatter y=y x=x;
+run;
 
 
+proc iml;
+use lib.cdata;
+read all into cdata;
+X = cdata[,1];
+y = cdata[,2];
 
 
+start func_x(X,y,x1,x2);
+	n = nrow(X);
+	d1 = J(n,1,0);
+	d2 = J(n,1,0);
+	
+	do i=1 to n;
+		if x[i,1] > x1 then d1[i] = 1;
+		if x[i,1] > x2 then d2[i] = 1;
+	end;
+	
+	* create Independent variables;	
+	X_new_1 = (x - x1)#d1;
+	x_new_2 = (x - x2)#d2;
+	
+	X_design_matrix = J(n,1,1) || x || x_new_1 || x_new_2;
+	
+	* fit model;
+	betas = inv(X_design_matrix`*X_design_matrix)*X_design_matrix`*y;
+	yhat = X_design_matrix*betas;
+	e = y - yhat;
+	
+	b = J(n,1,0);
+	b[1:nrow(betas)] = betas;
+	
+	results = b || y || yhat || X_design_matrix;
+
+	return results;
+	
+finish func_x;
+
+res = func_x(X,y,175,255);	
+
+cn = {'betas' 'y' 'yhat' 'X0' 'x1' 'x_compute_1' 'x_compute_2'};
+create predictions from res[colname=cn];
+	append form res;
+quit;
+
+ 
+proc sgplot data=predictions;
+	scatter y=y x=x1;
+	scatter y=yhat x=x1;
+run;
+
+proc iml;
+use predictions;
+read all into data;
+
+start bootstrap_errors;
+	
+finish bootstrap_errors;
 
 
 
