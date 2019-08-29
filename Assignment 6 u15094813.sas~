@@ -299,23 +299,36 @@ proc iml;
 use predictions;
 read all into data;
 
-
-start bootstrap_errors(y,yhat,X);
+start bootstrap_errors(y,yhat,X,iterations);
 	e = y - yhat;
 	n = nrow(X);
 	
-	yh_star = J(n,1,0);
-	do i=1 to n;
-		random_index = rand('integer', n);
-		yh_star[i] = yhat + e[random_index];
+	do r=1 to iterations;
+	
+		*yh_star = J(n,1,0);
+		do i=1 to n;
+			random_index = rand('integer', n);
+		*	yh_star[i] = yhat + e[random_index];
+			yh_star = yh_star // yhat + e[random_index];
+			print yh_star;
+		end;
 		
+		* fit new model;
+		b = inv(x`*x)*x`*yh_star;
+		betas = betas // b`;
 	end;
+	print betas;
+	
+	return betas;
 finish bootstrap_errors;
 
 
+y = data[,2];
+yhat = data[,3];
+x = data[,4:7];
 
-
-
+r = bootstrap_errors(y,yhat,x,10);
+print r;
 
 
 
