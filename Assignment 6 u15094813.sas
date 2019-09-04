@@ -444,7 +444,8 @@ finish break_point_search;
 
 
 ************** ******************** OPTIMAL STRUCTURAL BREAKPOINTS ALGORITHM ******************** **************;
-
+libname lib '/folders/myfolders/sasuser.v94/EKT 720/Assignment 6/';
+title 'OPTIMAL STRUCTURAL BREAKPOINTS ALGORITHM';
 
 
 proc iml;
@@ -467,31 +468,26 @@ start compute_mse(y, x, x1, x2);
 	
 	
 	xd = J(n,1,1)||x||xa||xb;
-	p = ncol(xd);
-	b = inv(xd`*xd)*xd`*y;
-	xbeta = xd*b;
-	sse = (y-xbeta)`*(y-xbeta);	
-	mse = sse/(n-p);
-
+	
+	mse = 999;
+	print 'mse B';
+	
+	if det(xd) ^= 0 then do;
+	print 'mse c';
+		p = ncol(xd);
+		b = inv(xd`*xd)*xd`*y;
+		xbeta = xd*b;
+		sse = (y-xbeta)`*(y-xbeta);	
+		mse = sse/(n-p);
+	end;
+	
 	return mse;
 finish compute_mse;
 
 
 
 
-
-
-
-start pass(y,x,x1,x2,func);
-	t = func(y,x,x1,x2);
-	return t;
-finish pass;
-
-
-f = pass(y,x,150,200, compute_mse);
-print f;
-
-start optimize_breakpoints(y, x, loss);
+start optimize_breakpoints(y, x);
 	*\
 	RETURN: optimal breakpoints give a loss function
 	
@@ -511,16 +507,16 @@ start optimize_breakpoints(y, x, loss);
 		do j=i+k to (n-k);
 			x1 = x[i];
 			x2 = x[j];
-			
-			t = loss(y,x,x1,x2);		
-			
-			print x1 x2;
-			print x1 x2 (loss(y,x,x1,x2));
-				
-			results = results // x1||x2||loss(y,x,x1,x2);
+			print '1';
+			print y x x1 x2;
+			mse = compute_mse(y, x, x1, x2);
+			print '2';
+			results = results // x1||x2||mse;
+			print '3';
 		end;
+		print '4';
 	end;
-	
+	print '5';
 
 	print results;
 	
@@ -528,7 +524,7 @@ start optimize_breakpoints(y, x, loss);
 	
 finish optimize_breakpoints;
 
-t = optimize_breakpoints(y,x,compute_mse());
+t = optimize_breakpoints(y,x);
 print t;
 
 
