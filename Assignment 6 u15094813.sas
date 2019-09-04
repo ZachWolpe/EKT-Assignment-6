@@ -22,6 +22,7 @@ start MC_integration(function_x, n, x_lower_limit, x_upper_limit);
 
 	approx_height_u = round(max(yt))+3;
 	approx_height_l = round(min(yt))-3;
+	approx_height_l = 0;
 	
 	results = J(n,3,999);
 	do i=1 to n;
@@ -299,18 +300,146 @@ proc iml;
 use predictions;
 read all into data;
 
-
-start bootstrap_errors(y,yhat,X);
+start bootstrap_errors(y,yhat,X,iterations);
 	e = y - yhat;
 	n = nrow(X);
 	
-	yh_star = J(n,1,0);
-	do i=1 to n;
-		random_index = rand('integer', n);
-		yh_star[i] = yhat + e[random_index];
+	do r=1 to iterations;
+	
+		yh_star = J(n,1,999);
+		do i=1 to n;
+			random_index = rand('integer', n);
+		 	yh_star[i] = (yhat[i] + e[random_index]);	
+		end;
+
+		* Coefficient Distributions;
+		b = inv(x`*x)*x`*yh_star;
+		betas = betas // b`;
+		
+		* R Squared Distribution;
+		R2 = r2 // ((b`*x`*yh_star - n*(mean(yh_star)**2)) /
+							(yh_star`*yh_star - n*(mean(yh_star)**2)));
 		
 	end;
+	
+	* confidence interval;
+	
+	res = betas || R2;
+		
+	return res;
 finish bootstrap_errors;
+
+
+y = data[,2];
+yhat = data[,3];
+x = data[,4:7];
+
+results = bootstrap_errors(y,yhat,x,10000);
+
+cm = {'b0' 'b1' 'b2' 'b3' 'R2'};
+create results from results[colname=cm];
+	append from results;
+quit;
+
+* Visualize Results;
+proc sgplot data=results; 
+	histogram r2 ;
+	title 'R2 Squared Distribution';
+run;
+
+
+************** ******************** Question 4: Different Structural BreakPoints ******************** **************;
+libname lib '/folders/myfolders/sasuser.v94/EKT 720/Assignment 6/';
+title 'Question 4: Observational BreakPoint Search';
+
+
+/*
+_ _ _ _ _ _ _ _ _ _ OBSERVATIONAL SEARCH STEPS _ _ _ _ _ _ _ _ _ _ 
+
+	1. Segregate data into K evenly spaced subsets 
+
+	2. Initialize breakpoints at intersections
+	
+	3. Compute metrix (R Squared)
+	
+	4. Shift 3 obs in each direction,
+			Compute the the metric R2 of each variation, holding the other break point constant
+			
+	5. Re-assign breakpoint to highest metric 
+	
+	6. Search for CONVERGENCE:
+		if no changes for 3 iterations cease computation
+
+*/
+
+proc iml;
+use lib.cdata;
+read all into xy;
+x = xy[,1];
+y = xy[,2];
+
+
+start Compute_r2(X,y,x1,x2);
+	n = nrow(X);
+	d1 = J(n,1,0);
+	d2 = J(n,1,0);
+	
+	do i=1 to n;
+		if x[i,1] > x1 then d1[i] = 1;
+		if x[i,1] > x2 then d2[i] = 1;
+	end;
+	
+	* create Independent variables;	
+	X_new_1 = (x - x1)#d1;
+	x_new_2 = (x - x2)#d2;
+	
+	X_design_matrix = J(n,1,1) || x || x_new_1 || x_new_2;
+	
+	* fit model;
+	b = inv(X_design_matrix`*X_design_matrix)*X_design_matrix`*y;
+	yhat = X_design_matrix*betas;
+	e = y - yhat;
+	
+	* R2;
+	r2 = r2 // ((b`*X_design_matrix`*yhat - n*(mean(yhat)**2)) /
+							(yhat`*yhat - n*(mean(yhat)**2)));
+	return r2;
+finish Compute_r2;
+
+
+
+
+start break_point_search(x,y,groups, Compute_metric);
+	n = nrow(x);
+	
+	* assign breakpoints;
+	x_min = min(x);
+	x_max = max(x);
+
+	initial_BP_1 = (x_max - x_min)*0.33;
+	initial_BP_2 = (x_max - x_min)*0.67;
+	
+
+	do while (converge<3);
+		
+		* for each lower Break Point estmation;
+		do i=1 to n;
+		
+		* compute metrix;
+		r2 = Compute_metric(x,y);
+		
+		
+		
+	end;
+	
+	
+
+finish break_point_search;
+
+
+
+
+
 
 
 
