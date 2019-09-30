@@ -2,6 +2,7 @@ options ls=72 nodate pageno=1 ;
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ASSIGNMENT 6 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ;    
 
 ************** ******************** Question 1: Logic - Monte Carlo Integration ******************** **************;
+
 title 'Question 1';
 proc iml;
 
@@ -15,7 +16,7 @@ finish function_x;
 
 start MC_integration(function_x, n, x_lower_limit, x_upper_limit);
 
-	t = do(3,8,.1)`;
+	t = do(x_lower_limit, x_upper_limit,.1)`;
 	do i=1 to nrow(t);
 		yt = yt // function_x(t[i]);
 	end;
