@@ -103,19 +103,19 @@ run;
 
 proc sgplot data=pair_betas;
 	histogram b0 / binwidth=10;
-	title 'Error Resampling';
+	title 'Pair Resampling';
 	title2 'Beta 0';
 run;
 
 proc sgplot data=pair_betas;
 	histogram b1 / binwidth=.1;
-	title 'Error Resampling';
+	title 'Pair Resampling';
 	title2 'Beta 1';
 run;
 	
 proc sgplot data=pair_betas;
 	histogram r2 / binwidth=.001;
-	title 'Error Resampling';
+	title 'Pair Resampling';
 	title2 'R2: Coefficient of Determination';
 run;
 	
