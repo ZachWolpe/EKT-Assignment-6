@@ -32,29 +32,56 @@ start reg;
 finish reg;
 
 
+
 start bootstrap_pairs;
 	in = sample(1:n, n, 'replace')`;
 	x = x_orig[in,];
-	y= y_orig[in,];
+	y = y_orig[in,];
 	call reg;
 finish bootstrap_pairs;
 
-pp=1;
-call bootstrap_pairs;
+pp=1; call bootstrap_pairs;
+
+ 
+start bootstrap_errors;	
+	in = sample(1:n, n, 'replace')`;
+	y = y_orig + e[in,];
+	call reg;
+finish bootstrap_errors;
 
 
-do i=1 to 10000;
+
+iters = 10000;
+
+do i=1 to iters;
 	call bootstrap_pairs;
-	betas = betas // bh`;
+	res = res // (bh` || r2);
 end;
 
-print betas;
+create pair_betas from res[colname={'b0 b1'}];
+append from res;
+
+
+x = x_orig;
+y = y_orig;
+call reg;
+e = y - x*bh;
+
+
+do i=1 to iters;
+	call bootstrap_errors;
+	res_e = res_e // (bh` || r2);
+end;
+
+create error_betas from res_e[colname={'b0 b1'}];
+append from res_e;
 
 
 
+do i=1 to iters;
 
+end;
 
-e = y - bh;
 
 
 
