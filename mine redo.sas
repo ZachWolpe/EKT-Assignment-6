@@ -12,6 +12,8 @@ run;
 
 
 
+
+
 proc iml;
 use cdata;
 read all into xy;
@@ -21,6 +23,7 @@ x_orig = J(n,1,1)||xy[,1];
 y = y_orig;
 x = x_orig;
 iters = 1000;
+pp=0;
 
 start reg;
 	k=ncol(x);
@@ -47,13 +50,17 @@ start bootstrap_pairs;
 finish bootstrap_pairs;
 
 
-
 do i=1 to iters;
 	call bootstrap_pairs;
 	res = res // (bh` || r2);
 end;
 
-create pair_betas from res[colname={'b0 b1 r2'}];
+upper_r2 = mean(res[,3]) + 1.96*std(res[,3]);
+lower_r2 = mean(res[,3]) - 1.96*std(res[,3]);
+res = res || J(nrow(res), 1, lower_r2) || J(nrow(res), 1, upper_r2);
+
+
+create pair_betas from res[colname={'b0' 'b1' 'r2' 'lower_r2' 'upper_r2'}];
 append from res;
 
 
@@ -75,9 +82,17 @@ do i=1 to iters;
 	res_e = res_e // (bh` || r2);
 end;
 
-create error_betas from res_e[colname={'b0 b1 r2'}];
-append from res_e;
+upper_r2 = mean(res_e[,3]) + 1.96*std(res_e[,3]);
+lower_r2 = mean(res_e[,3]) - 1.96*std(res_e[,3]);
+res_e = res_e || J(nrow(res_e), 1, lower_r2) || J(nrow(res_e), 1, upper_r2);
 
+
+create error_betas from res_e[colname={'b0' 'b1' 'r2' 'lower_r2' 'upper_r2'}];
+append from res_e;
+quit;
+
+proc print data=error_betas (obs=10);
+proc print data=pair_betas (obs=10);
 
 
 * _______ Results _______;
@@ -96,6 +111,8 @@ run;
 	
 proc sgplot data=error_betas;
 	histogram r2 / binwidth=0.001;
+	refline  lower_r2 / axis=x ;
+	refline  upper_r2 / axis=x ;
 	title 'Error Resampling';
 	title2 'R2: Coefficient of Determination';
 run;
@@ -115,13 +132,13 @@ run;
 	
 proc sgplot data=pair_betas;
 	histogram r2 / binwidth=.001;
+	refline  lower_r2 / axis=x ;
+	refline  upper_r2 / axis=x ;
 	title 'Pair Resampling';
 	title2 'R2: Coefficient of Determination';
 run;
 	
 	
-	
-
 
 
 
