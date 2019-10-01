@@ -237,9 +237,8 @@ y_orig = xy[,2];
 y = y_orig;
 
 
-
 start reg;
-	if inv(x`*x) ^= 0 then do;
+	if inv(x`*x) ^= 0 then; do;
 		k=ncol(x);
 		bh=inv(x`*x)*x`*y;
 		yh = x*bh;
@@ -249,7 +248,7 @@ start reg;
 		r2=(cssy-sse)/cssy;
 		F = (r2/(k-1))/((1-r2)/(n-k));
 	end;
-	else do;
+	else; do;
 		mse = 90009;
 		r2 = 90009;
 	end;
@@ -265,12 +264,12 @@ finish def_x;
 * define min number of observations per segment;
 m = 5;
 
-
-do i=m to nrow(xy)-2*m by 1;
-	do j=2*m to nrow(xy)-m by 1;
+do i=m to nrow(xy)-2*m;
+	do j=(i+m) to nrow(xy)-m;
 		x1 = x_orig[i,2];
 		x2 = x_orig[j,2];
-		x = def_x(x_orig,x1,x2);
+		x = def_x(x_orig,x1,x2);		
+
 		call reg;
 		results = results // (i || j || mse || r2);
 	end;
