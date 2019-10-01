@@ -137,11 +137,85 @@ proc sgplot data=pair_betas;
 	title 'Pair Resampling';
 	title2 'R2: Coefficient of Determination';
 run;
+
+
+
+
+
+
+
+
+* __________________________ Assignment 6: Question 3 __________________________;
 	
+data cdata;
+set '/folders/myfolders/sasuser.v94/EKT 720/Assignment 6/cdata.sas7bdat';
+run;
+
+proc sgplot data=cdata;
+	scatter x=x y=y;
+run;
+
+
+
+
+proc iml;
+use cdata;
+read all into xy;
+n = nrow(xy);
+x_orig = J(n,1,1)||xy[,1];
+y_orig = xy[,2];
+
+
+start reg;
+	n=nrow(x);
+	k=ncol(x);
+	bh=inv(x`*x)*x`*y;
+	sse=ssq(y-x*bh);
+	cssy=ssq(y-(sum(y)/n));
+	r2=(cssy-sse)/cssy;
+finish reg;
+
+
+
+x1 = 175;
+x2 = 255;
+xa = (x_orig[,2]-x1)#(x_orig[,2]>x1);
+xb = (x_orig[,2]-x2)#(x_orig[,2]>x2);
+x = x_orig || xa || xb;
+
+bh=inv(x_orig`*x_orig)*x_orig`*y_orig;
+e = y_orig - x_orig*bh;
+
+do i=1 to 1000;
+	in = sample(1:n, n, 'replace')`;
+	y = y_orig + e[in,];
+	call reg;
+	results = results // (bh` || r2);
+end;
+
+nm = {'b0' 'b1' 'b2' 'b3' 'r2'};
+
+do i=1 to ncol(results);
+	low = mean(results[,i]) - 1.96*std(results[,i]);
+	high = mean(results[,i]) + 1.96*std(results[,i]);
 	
+	print 'confidence intervals';
+	print (nm[i]) low high;
+	* plot;
+	call Histogram(results[,i]);
+end;
+quit;
 
 
 
+
+
+
+
+
+
+
+* __________________________ Assignment 6: Question 4 __________________________;
 
 
 
