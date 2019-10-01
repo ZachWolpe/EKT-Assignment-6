@@ -276,8 +276,6 @@ do i=m to nrow(xy)-2*m;
 end;
 
 
-print results;
-
 print "best breakpoints using MSE";
 in = results[,3][>:<];
 b1_mse = x_orig[results[in,1],2];
